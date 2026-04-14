@@ -1,0 +1,797 @@
+<\!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Comissões — AEVO Imobiliária | Março 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --navy:#0D2240; --navy-l:#1B3A6B; --gold:#C9A84C; --gold-l:#E8C87A;
+    --bg:#F4F6F9; --white:#FFFFFF; --gray:#8899AA; --red:#C0392B; --green:#27AE60;
+    --card-shadow:0 2px 12px rgba(13,34,64,.10);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--navy);}
+  .header{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-l) 100%);padding:28px 40px 22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+  .header-left h1{color:#fff;font-size:22px;font-weight:700;letter-spacing:.3px;}
+  .header-left p{color:var(--gold-l);font-size:13px;margin-top:4px;}
+  .header-badge{background:rgba(201,168,76,.18);border:1px solid var(--gold);color:var(--gold-l);padding:6px 18px;border-radius:20px;font-size:12px;font-weight:600;letter-spacing:.5px;}
+  .main{max-width:1280px;margin:0 auto;padding:28px 24px 48px;}
+  .section-title{font-size:13px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:1px;margin:32px 0 14px;padding-left:2px;}
+  .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+  .kpi-card{background:#fff;border-radius:12px;padding:20px 22px;box-shadow:var(--card-shadow);border-top:4px solid transparent;transition:transform .15s;}
+  .kpi-card:hover{transform:translateY(-2px);}
+  .kpi-card.total{border-top-color:var(--navy);}
+  .kpi-card.recebido{border-top-color:var(--green);}
+  .kpi-card.avencer{border-top-color:var(--gold);}
+  .kpi-card.inadimp{border-top-color:var(--red);}
+  .kpi-label{font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;}
+  .kpi-value{font-size:24px;font-weight:700;color:var(--navy);line-height:1.1;}
+  .kpi-value.green{color:var(--green);}
+  .kpi-value.gold{color:#A07828;}
+  .kpi-value.red{color:var(--red);}
+  .kpi-sub{font-size:11.5px;color:var(--gray);margin-top:6px;}
+  .kpi-sub span{font-weight:600;color:var(--navy);}
+  .kpi-progress{margin-top:12px;}
+  .kpi-progress-bar{height:6px;background:#E0E6EE;border-radius:4px;overflow:hidden;}
+  .kpi-progress-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--green),#52C878);}
+  .kpi-progress-label{font-size:11px;color:var(--gray);margin-top:5px;text-align:right;}
+  .chart-row{display:grid;gap:16px;}
+  .chart-row.col2{grid-template-columns:1fr 1fr;}
+  .chart-row.col3{grid-template-columns:2fr 1fr;}
+  .chart-card{background:#fff;border-radius:12px;padding:22px 24px;box-shadow:var(--card-shadow);}
+  .chart-card h3{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+  .chart-card p.sub{font-size:11.5px;color:var(--gray);margin-bottom:18px;}
+  .inad-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+  .inad-card{border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:4px;}
+  .inad-card .faixa{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;opacity:.85;}
+  .inad-card .valor{font-size:18px;font-weight:700;}
+  .inad-card .parcelas{font-size:11px;opacity:.75;}
+  .inad-c1{background:#FEF9E7;color:#7D6608;}
+  .inad-c2{background:#FDEBD0;color:#784212;}
+  .inad-c3{background:#FADBD8;color:#78281F;}
+  .inad-c4{background:#EBDEF0;color:#512E5F;}
+  .table-card{background:#fff;border-radius:12px;box-shadow:var(--card-shadow);overflow:hidden;}
+  .table-header{background:var(--navy);padding:16px 22px;display:flex;justify-content:space-between;align-items:center;}
+  .table-header h3{color:#fff;font-size:13px;font-weight:700;}
+  .table-header span{color:var(--gold-l);font-size:11.5px;}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  thead th{background:#EEF2F7;color:var(--navy);font-weight:700;padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid #D8E0EA;}
+  thead th.right{text-align:right;}
+  tbody tr{border-bottom:1px solid #EEF2F7;transition:background .12s;}
+  tbody tr:hover{background:#F8FAFE;}
+  tbody td{padding:10px 14px;color:var(--navy);vertical-align:middle;}
+  tbody td.right{text-align:right;font-variant-numeric:tabular-nums;}
+  .prog-wrap{width:100px;background:#E5EBF3;border-radius:4px;height:8px;overflow:hidden;display:inline-block;vertical-align:middle;}
+  .prog-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--navy-l),#4A7FD0);}
+  .prog-fill.full{background:linear-gradient(90deg,var(--green),#52C878);}
+  .pct-label{font-size:11px;color:var(--gray);margin-left:6px;}
+  .badge-status{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10.5px;font-weight:600;}
+  .badge-alto{background:#FDEDEC;color:#C0392B;}
+  .badge-medio{background:#FEF9E7;color:#7D6608;}
+  .badge-bom{background:#EBF5FB;color:#1A5276;}
+  .badge-ok{background:#EAFAF1;color:#196F3D;}
+  .footer{text-align:center;padding:20px;font-size:11px;color:var(--gray);border-top:1px solid #E0E6EE;margin-top:12px;}
+  @media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr);}.chart-row.col2,.chart-row.col3{grid-template-columns:1fr;}.inad-grid{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:560px){.kpi-grid{grid-template-columns:1fr;}.inad-grid{grid-template-columns:1fr;}.main{padding:16px 12px 32px;}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <h1>Dashboard de Comissões — AEVO Imobiliária</h1>
+    <p>Referência: Janeiro 2024 – Março 2026 &nbsp;|&nbsp; Corte: 31/03/2026 &nbsp;|&nbsp; Gerado em: 14/04/2026</p>
+  </div>
+  <div class="header-badge">MARÇO 2026</div>
+</div>
+
+<div class="main">
+
+  <div class="section-title">Resumo Geral</div>
+  <div class="kpi-grid">
+    <div class="kpi-card total">
+      <div class="kpi-label">Total de Comissão</div>
+      <div class="kpi-value">R$ 18,91M</div>
+      <div class="kpi-sub">Carteira total: <span>R$ 18.914.189,94</span></div>
+    </div>
+    <div class="kpi-card recebido">
+      <div class="kpi-label">Recebido até Mar/2026</div>
+      <div class="kpi-value green">R$ 11,71M</div>
+      <div class="kpi-sub">Total pago: <span>R$ 11.709.029,96</span></div>
+      <div class="kpi-progress">
+        <div class="kpi-progress-bar"><div class="kpi-progress-fill" style="width:61.9%"></div></div>
+        <div class="kpi-progress-label">61,9% da carteira recebida</div>
+      </div>
+    </div>
+    <div class="kpi-card avencer">
+      <div class="kpi-label">A Receber &nbsp;<span style="font-size:10px;font-weight:600;color:#7D6608;background:#FEF9E7;padding:2px 7px;border-radius:8px;">Corte: 31/03</span></div>
+      <div class="kpi-value gold">R$ 7,21M</div>
+      <div class="kpi-sub">Saldo em 31/03: <span>R$ 7.205.159,98</span></div>
+      <div style="margin-top:8px;padding:7px 10px;background:#F4F6F9;border-radius:8px;border-left:3px solid #C9A84C;">
+        <div style="font-size:10.5px;color:#8899AA;font-weight:600;">Saldo atual (14/04)</div>
+        <div style="font-size:13px;font-weight:700;color:#A07828;margin-top:2px;">R$ 6.918.662,09</div>
+        <div style="font-size:10px;color:#AAB5C0;margin-top:1px;">após recebimentos de abril</div>
+      </div>
+    </div>
+    <div class="kpi-card inadimp">
+      <div class="kpi-label">Inadimplência &nbsp;<span style="font-size:12px;font-weight:700;color:#C0392B;background:#FDEDEC;padding:2px 7px;border-radius:8px;">6,6% da carteira</span></div>
+      <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
+        <div class="kpi-value red">R$ 1,26M</div>
+        <div style="font-size:12.5px;font-weight:600;color:#C0392B;white-space:nowrap;">R$ 1.255.649,46</div>
+      </div>
+      <div class="kpi-sub">237 parcelas em atraso</div>
+      <div style="margin-top:10px;display:flex;flex-direction:column;gap:5px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:11.5px;">
+          <span style="color:#8899AA;font-weight:600;">Faturada</span>
+          <span style="color:#0D2240;font-weight:700;">R$ 630.143,43 <span style="color:#C0392B;font-weight:600;">(3,3%)</span></span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:11.5px;">
+          <span style="color:#8899AA;font-weight:600;">Intermediada</span>
+          <span style="color:#0D2240;font-weight:700;">R$ 625.506,03 <span style="color:#C0392B;font-weight:600;">(3,3%)</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Recebimentos</div>
+  <div class="chart-row col2">
+    <div class="chart-card">
+      <h3>Evolução Mensal de Recebimentos</h3>
+      <p class="sub">Valores efetivamente pagos até 31/03/2026</p>
+      <canvas id="chartEvolucao" height="200"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>Forecast de Recebimentos</h3>
+      <p class="sub">Parcelas a vencer — Abril a Setembro/2026 &nbsp;|&nbsp; <strong style="color:#0D2240;">Total 6 meses: R$ 3.463.703,51</strong></p>
+      <canvas id="chartForecast" height="200"></canvas>
+    </div>
+  </div>
+
+  <div class="section-title">Concentração por Incorporadora</div>
+  <div class="chart-row col3">
+    <div class="chart-card">
+      <h3>Comissão Total por Incorporadora</h3>
+      <p class="sub">Top 7 + Outros — participação sobre carteira total</p>
+      <canvas id="chartIncorp" height="200"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>Distribuição</h3>
+      <p class="sub">Participação relativa</p>
+      <canvas id="chartDonut" height="220"></canvas>
+    </div>
+  </div>
+
+  <div class="section-title">Inadimplência</div>
+  <div class="inad-grid">
+    <div class="inad-card inad-c1">
+      <div class="faixa">1 – 30 dias</div>
+      <div class="valor">R$ 277.357,94</div>
+      <div class="parcelas">67 parcelas</div>
+      <div style="margin-top:10px;border-top:1px solid rgba(125,102,8,.18);padding-top:8px;display:flex;flex-direction:column;gap:4px;">
+        <div style="display:flex;justify-content:space-between;font-size:11px;">
+          <span style="opacity:.8;">Jardim Goiás</span><span style="font-weight:700;">R$ 178.803,55</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;">
+          <span style="opacity:.8;">Bueno</span><span style="font-weight:700;">R$ 65.468,77</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;">
+          <span style="opacity:.8;">AEVO 3</span><span style="font-weight:700;">R$ 26.887,03</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;">
+          <span style="opacity:.8;">AEVO 4</span><span style="font-weight:700;">R$ 6.198,59</span>
+        </div>
+      </div>
+    </div>
+    <div class="inad-card inad-c2">
+      <div class="faixa">31 – 60 dias</div>
+      <div class="valor">R$ 136.606,32</div>
+      <div class="parcelas">21 parcelas</div>
+      <div style="margin-top:10px;border-top:1px solid rgba(120,66,18,.18);padding-top:8px;display:flex;flex-direction:column;gap:4px;">
+        <div style="display:flex;justify-content:space-between;font-size:11px;">
+          <span style="opacity:.8;">Jardim Goiás</span><span style="font-weight:700;">R$ 92.267,00</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;">
+          <span style="opacity:.8;">Bueno</span><span style="font-weight:700;">R$ 33.736,56</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;">
+          <span style="opacity:.8;">AEVO 4</span><span style="font-weight:700;">R$ 10.602,76</span>
+        </div>
+      </div>
+    </div>
+    <div class="inad-card inad-c3">
+      <div class="faixa">61 – 90 dias</div>
+      <div class="valor">R$ 143.460,39</div>
+      <div class="parcelas">24 parcelas</div>
+      <div style="margin-top:10px;border-top:1px solid rgba(120,40,31,.18);padding-top:8px;display:flex;flex-direction:column;gap:4px;">
+        <div style="display:flex;justify-content:space-between;font-size:11px;">
+          <span style="opacity:.8;">Jardim Goiás</span><span style="font-weight:700;">R$ 87.725,62</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;">
+          <span style="opacity:.8;">Bueno</span><span style="font-weight:700;">R$ 55.734,77</span>
+        </div>
+      </div>
+    </div>
+    <div class="inad-card inad-c4">
+      <div class="faixa">&gt; 90 dias</div>
+      <div class="valor">R$ 697.379,92</div>
+      <div class="parcelas">124 parcelas</div>
+      <div style="margin-top:8px;display:flex;gap:5px;flex-wrap:wrap;">
+        <span style="font-size:10.5px;font-weight:700;background:rgba(81,46,95,.15);padding:2px 8px;border-radius:8px;">2024: 2,5%</span>
+        <span style="font-size:10.5px;font-weight:700;background:rgba(81,46,95,.22);padding:2px 8px;border-radius:8px;">2025: 95,8%</span>
+        <span style="font-size:10.5px;font-weight:700;background:rgba(81,46,95,.15);padding:2px 8px;border-radius:8px;">2026: 1,7%</span>
+      </div>
+      <div style="margin-top:8px;border-top:1px solid rgba(81,46,95,.18);padding-top:8px;display:flex;flex-direction:column;gap:4px;">
+        <div style="display:flex;justify-content:space-between;font-size:11px;">
+          <span style="opacity:.8;">Jardim Goiás</span><span style="font-weight:700;">R$ 585.612,46</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;">
+          <span style="opacity:.8;">Bueno</span><span style="font-weight:700;">R$ 111.767,46</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="chart-row col3">
+    <div class="chart-card">
+      <h3>Inadimplência por Tempo de Atraso</h3>
+      <p class="sub">Valor total por faixa de dias em atraso</p>
+      <canvas id="chartInad" height="180"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>Distribuição do Atraso</h3>
+      <p class="sub">Participação de cada faixa no total inadimplente</p>
+      <canvas id="chartInadDonut" height="220"></canvas>
+    </div>
+  </div>
+
+  <!-- ── INADIMPLÊNCIA POR SITUAÇÃO ── -->
+  <div class="section-title">Inadimplência por Situação da Venda</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;">
+
+    <!-- Normal -->
+    <div style="background:#fff;border-radius:12px;box-shadow:var(--card-shadow);overflow:hidden;">
+      <div style="background:#1B3A6B;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="color:#fff;font-size:13px;font-weight:700;">Normal</span>
+        <span style="background:rgba(255,255,255,.15);color:#E8C87A;font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;">64,0%</span>
+      </div>
+      <div style="padding:16px 18px;">
+        <div style="font-size:22px;font-weight:700;color:#0D2240;">R$ 803.839,90</div>
+        <div style="font-size:11.5px;color:#8899AA;margin-top:3px;">104 parcelas em atraso</div>
+        <div style="margin-top:12px;height:5px;background:#E0E6EE;border-radius:4px;">
+          <div style="width:64%;height:100%;background:linear-gradient(90deg,#1B3A6B,#4A7FD0);border-radius:4px;"></div>
+        </div>
+        <div style="margin-top:14px;border-top:1px solid #EEF2F7;padding-top:12px;display:flex;flex-direction:column;gap:6px;">
+          <div style="font-size:10.5px;font-weight:700;color:#8899AA;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">Top empreendimentos</div>
+          <div style="display:flex;justify-content:space-between;font-size:11.5px;">
+            <span style="color:#555;">Cidade Ybiti</span><span style="font-weight:700;color:#0D2240;">R$ 156.908,36</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:11.5px;">
+            <span style="color:#555;">Jardins Frankfurt</span><span style="font-weight:700;color:#0D2240;">R$ 78.301,04</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:11.5px;">
+            <span style="color:#555;">Jardins Grecia</span><span style="font-weight:700;color:#0D2240;">R$ 53.860,69</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:11.5px;">
+            <span style="color:#555;">Autentico Flamboyant</span><span style="font-weight:700;color:#0D2240;">R$ 51.522,34</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:11.5px;">
+            <span style="color:#555;">Opus Altana</span><span style="font-weight:700;color:#0D2240;">R$ 39.973,27</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Em Cobrança Extra Judicial -->
+    <div style="background:#fff;border-radius:12px;box-shadow:var(--card-shadow);overflow:hidden;">
+      <div style="background:#C0392B;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="color:#fff;font-size:13px;font-weight:700;">Em Cobrança Extra Judicial</span>
+        <span style="background:rgba(255,255,255,.18);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;">34,0%</span>
+      </div>
+      <div style="padding:16px 18px;">
+        <div style="font-size:22px;font-weight:700;color:#C0392B;">R$ 426.372,62</div>
+        <div style="font-size:11.5px;color:#8899AA;margin-top:3px;">130 parcelas em cobrança</div>
+        <div style="margin-top:12px;height:5px;background:#E0E6EE;border-radius:4px;">
+          <div style="width:34%;height:100%;background:linear-gradient(90deg,#C0392B,#E74C3C);border-radius:4px;"></div>
+        </div>
+        <div style="margin-top:14px;border-top:1px solid #EEF2F7;padding-top:12px;display:flex;flex-direction:column;gap:6px;">
+          <div style="font-size:10.5px;font-weight:700;color:#8899AA;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">Top empreendimentos</div>
+          <div style="display:flex;justify-content:space-between;font-size:11.5px;">
+            <span style="color:#555;">Jardins Grecia</span><span style="font-weight:700;color:#C0392B;">R$ 73.390,99</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:11.5px;">
+            <span style="color:#555;">Autentico Flamboyant</span><span style="font-weight:700;color:#C0392B;">R$ 67.442,00</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:11.5px;">
+            <span style="color:#555;">Jardins Marselha</span><span style="font-weight:700;color:#C0392B;">R$ 42.899,90</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:11.5px;">
+            <span style="color:#555;">Autoria</span><span style="font-weight:700;color:#C0392B;">R$ 27.716,37</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:11.5px;">
+            <span style="color:#555;">Jardins Lyon</span><span style="font-weight:700;color:#C0392B;">R$ 24.867,89</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Distratada -->
+    <div style="background:#fff;border-radius:12px;box-shadow:var(--card-shadow);overflow:hidden;">
+      <div style="background:#7D6608;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="color:#fff;font-size:13px;font-weight:700;">Distratada</span>
+        <span style="background:rgba(255,255,255,.15);color:#FEF9E7;font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;">2,0%</span>
+      </div>
+      <div style="padding:16px 18px;">
+        <div style="font-size:22px;font-weight:700;color:#7D6608;">R$ 25.436,94</div>
+        <div style="font-size:11.5px;color:#8899AA;margin-top:3px;">3 parcelas — contrato distratado</div>
+        <div style="margin-top:12px;height:5px;background:#E0E6EE;border-radius:4px;">
+          <div style="width:2%;height:100%;background:linear-gradient(90deg,#7D6608,#C9A84C);border-radius:4px;"></div>
+        </div>
+        <div style="margin-top:14px;border-top:1px solid #EEF2F7;padding-top:12px;display:flex;flex-direction:column;gap:6px;">
+          <div style="font-size:10.5px;font-weight:700;color:#8899AA;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">Empreendimento</div>
+          <div style="display:flex;justify-content:space-between;font-size:11.5px;">
+            <span style="color:#555;">Opus Altana</span><span style="font-weight:700;color:#7D6608;">R$ 25.436,94</span>
+          </div>
+          <div style="margin-top:8px;padding:8px 10px;background:#FEF9E7;border-radius:8px;font-size:11px;color:#7D6608;">
+            ⚠️ Contrato distratado — verificar recuperação do valor junto ao incorporador
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── RECEBIMENTO POR UNIDADE ── -->
+  <div class="section-title">Recebimento por Unidade — 1º Trimestre 2026</div>
+  <div class="table-card">
+    <div class="table-header">
+      <h3>Recebimento Mensal por Unidade de Negócio</h3>
+      <span>Janeiro a Abril/2026 · valores efetivamente pagos</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Unidade</th>
+          <th class="right">Janeiro</th>
+          <th class="right">Fevereiro</th>
+          <th class="right">Março</th>
+          <th class="right">Abril</th>
+          <th class="right">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>AEVO 3</td>
+          <td class="right">R$ 0,00</td>
+          <td class="right">R$ 13.689,20</td>
+          <td class="right">R$ 37.433,85</td>
+          <td class="right" style="color:var(--gray);">R$ 19.421,09</td>
+          <td class="right"><strong>R$ 70.544,14</strong></td>
+        </tr>
+        <tr style="background:#F8FAFE;">
+          <td>AEVO 4</td>
+          <td class="right">R$ 11.527,50</td>
+          <td class="right">R$ 36.961,75</td>
+          <td class="right">R$ 48.950,18</td>
+          <td class="right" style="color:var(--gray);">R$ 29.530,00</td>
+          <td class="right"><strong>R$ 126.969,43</strong></td>
+        </tr>
+        <tr>
+          <td>Unidade Bueno</td>
+          <td class="right">R$ 290.020,75</td>
+          <td class="right">R$ 170.608,22</td>
+          <td class="right">R$ 228.001,30</td>
+          <td class="right" style="color:var(--gray);">R$ 157.311,78</td>
+          <td class="right"><strong>R$ 845.942,05</strong></td>
+        </tr>
+        <tr style="background:#F8FAFE;">
+          <td>Unidade Jardim Goiás</td>
+          <td class="right">R$ 666.802,99</td>
+          <td class="right">R$ 324.536,72</td>
+          <td class="right">R$ 412.978,27</td>
+          <td class="right" style="color:var(--gray);">R$ 80.203,30</td>
+          <td class="right"><strong>R$ 1.484.521,28</strong></td>
+        </tr>
+        <tr style="background:var(--navy);color:#fff;">
+          <td><strong>Total Geral</strong></td>
+          <td class="right"><strong>R$ 968.351,24</strong></td>
+          <td class="right"><strong>R$ 545.795,89</strong></td>
+          <td class="right"><strong>R$ 727.363,60</strong></td>
+          <td class="right" style="color:var(--gold-l);"><strong>R$ 286.466,17</strong></td>
+          <td class="right" style="color:var(--gold-l);"><strong>R$ 2.527.976,90</strong></td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="padding:8px 22px;font-size:11px;color:var(--gray);border-top:1px solid #EEF2F7;">
+      * Coluna Abril inclui pagamentos de 01/04 a 14/04/2026
+    </div>
+  </div>
+
+  <!-- ── CONSOLIDADO POR TIPO DE VENDA ── -->
+  <div class="section-title">Consolidado por Tipo de Venda</div>
+  <div class="table-card">
+    <div class="table-header">
+      <h3>Faturada vs. Intermediada — 2024 a 2026</h3>
+      <span>Comissão total, recebido e saldo em aberto</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Tipo de Venda</th>
+          <th class="right">Total Comissão</th>
+          <th class="right">Valor Recebido</th>
+          <th class="right">A Receber</th>
+          <th class="right">% Recebido</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Faturada</td>
+          <td class="right">R$ 4.768.231,39</td>
+          <td class="right">R$ 1.538.036,34</td>
+          <td class="right">R$ 3.230.195,05</td>
+          <td class="right">
+            <div style="display:inline-flex;align-items:center;gap:8px;">
+              <div class="prog-wrap" style="width:70px;"><div class="prog-fill" style="width:32.3%"></div></div>
+              <span style="font-weight:700;">32,3%</span>
+            </div>
+          </td>
+        </tr>
+        <tr style="background:#F8FAFE;">
+          <td>Intermediada</td>
+          <td class="right">R$ 14.145.958,55</td>
+          <td class="right">R$ 10.170.993,62</td>
+          <td class="right">R$ 3.974.964,93</td>
+          <td class="right">
+            <div style="display:inline-flex;align-items:center;gap:8px;">
+              <div class="prog-wrap" style="width:70px;"><div class="prog-fill" style="width:71.9%"></div></div>
+              <span style="font-weight:700;">71,9%</span>
+            </div>
+          </td>
+        </tr>
+        <tr style="background:var(--navy);color:#fff;">
+          <td><strong>Total Geral</strong></td>
+          <td class="right"><strong>R$ 18.914.189,94</strong></td>
+          <td class="right"><strong>R$ 11.709.029,96</strong></td>
+          <td class="right"><strong>R$ 7.205.159,98</strong></td>
+          <td class="right" style="color:var(--gold-l);"><strong>61,9%</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── RECEITA EM ABERTO POR CATEGORIA ── -->
+  <div class="section-title">Receita em Aberto e Inadimplência</div>
+  <div class="table-card">
+    <div class="table-header">
+      <h3>Composição do Saldo em Aberto por Categoria</h3>
+      <span>Total em aberto: R$ 6.808.215,41</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Categoria</th>
+          <th>Descrição</th>
+          <th class="right">Valor a Receber</th>
+          <th class="right">% do Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>A Vencer</strong></td>
+          <td style="color:var(--gray);">Parcelas com vencimento futuro</td>
+          <td class="right">R$ 4.873.980,72</td>
+          <td class="right">
+            <div style="display:inline-flex;align-items:center;gap:8px;">
+              <div class="prog-wrap" style="width:70px;"><div class="prog-fill" style="width:71.6%"></div></div>
+              <span style="font-weight:700;">71,6%</span>
+            </div>
+          </td>
+        </tr>
+        <tr style="background:#FFF5F5;">
+          <td><strong style="color:#C0392B;">Inadimplência</strong></td>
+          <td style="color:var(--gray);">Parcelas vencidas não pagas</td>
+          <td class="right" style="color:#C0392B;font-weight:700;">R$ 1.255.649,46</td>
+          <td class="right">
+            <div style="display:inline-flex;align-items:center;gap:8px;">
+              <div class="prog-wrap" style="width:70px;"><div class="prog-fill" style="background:#C0392B;width:18.4%"></div></div>
+              <span style="font-weight:700;color:#C0392B;">18,4%</span>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Desconto Colaborador</strong></td>
+          <td style="color:var(--gray);">Valores com desconto concedido</td>
+          <td class="right">R$ 375.686,95</td>
+          <td class="right">
+            <div style="display:inline-flex;align-items:center;gap:8px;">
+              <div class="prog-wrap" style="width:70px;"><div class="prog-fill" style="background:#A07020;width:5.5%"></div></div>
+              <span style="font-weight:700;">5,5%</span>
+            </div>
+          </td>
+        </tr>
+        <tr style="background:#F8FAFE;">
+          <td><strong style="color:#E07B00;">Negociação Interna</strong></td>
+          <td style="color:var(--gray);">Em processo de negociação</td>
+          <td class="right" style="color:#E07B00;font-weight:700;">R$ 102.644,69</td>
+          <td class="right">
+            <div style="display:inline-flex;align-items:center;gap:8px;">
+              <div class="prog-wrap" style="width:70px;"><div class="prog-fill" style="background:#E07B00;width:1.5%"></div></div>
+              <span style="font-weight:700;color:#E07B00;">1,5%</span>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--gray);">Abonada</strong></td>
+          <td style="color:var(--gray);">Comissões baixadas / perdoadas</td>
+          <td class="right" style="color:var(--gray);font-weight:700;">R$ 200.253,59</td>
+          <td class="right">
+            <div style="display:inline-flex;align-items:center;gap:8px;">
+              <div class="prog-wrap" style="width:70px;"><div class="prog-fill" style="background:var(--gray);width:2.8%"></div></div>
+              <span style="font-weight:700;color:var(--gray);">2,8%</span>
+            </div>
+          </td>
+        </tr>
+        <tr style="background:#EAFAF1;">
+          <td><strong style="color:#196F3D;">✓ Recebido em Abril/26</strong></td>
+          <td style="color:var(--gray);">Pago entre 01/04 e 14/04/2026 (28 parcelas)</td>
+          <td class="right" style="color:#196F3D;font-weight:700;">R$ 286.497,89</td>
+          <td class="right">
+            <div style="display:inline-flex;align-items:center;gap:8px;">
+              <div class="prog-wrap" style="width:70px;"><div class="prog-fill" style="background:#27AE60;width:4.0%"></div></div>
+              <span style="font-weight:700;color:#196F3D;">4,0%</span>
+            </div>
+          </td>
+        </tr>
+        <tr style="background:#F0FFF4;">
+          <td><strong style="color:#196F3D;">✓ Saldo de pagamentos parciais</strong></td>
+          <td style="color:var(--gray);">Pago antes do corte, mas valor parcial — saldo residual</td>
+          <td class="right" style="color:#196F3D;font-weight:700;">R$ 110.446,68</td>
+          <td class="right">
+            <div style="display:inline-flex;align-items:center;gap:8px;">
+              <div class="prog-wrap" style="width:70px;"><div class="prog-fill" style="background:#27AE60;width:1.5%"></div></div>
+              <span style="font-weight:700;color:#196F3D;">1,5%</span>
+            </div>
+          </td>
+        </tr>
+        <tr style="background:var(--navy);color:#fff;">
+          <td><strong>Total (= A Receber no KPI)</strong></td>
+          <td style="color:rgba(255,255,255,.6);">Referência: 31/03/2026</td>
+          <td class="right" style="color:var(--gold-l);"><strong>R$ 7.205.159,98</strong></td>
+          <td class="right" style="color:var(--gold-l);"><strong>100%</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">Empreendimentos — Top 20</div>
+  <div class="table-card">
+    <div class="table-header">
+      <h3>Carteira por Empreendimento</h3>
+      <span>Ordenado por comissão total</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Empreendimento</th>
+          <th class="right">Total Comissão</th>
+          <th class="right">Recebido</th>
+          <th class="right">A Receber</th>
+          <th>% Recebido</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="tblBody"></tbody>
+    </table>
+  </div>
+
+  <!-- ── FATURADA A RECEBER POR INCORPORADORA ── -->
+  <div class="section-title">Venda Faturada a Receber — por Incorporadora</div>
+  <div class="table-card">
+    <div class="table-header">
+      <h3>Comissão de Venda Faturada em Aberto por Incorporadora</h3>
+      <span>Total Faturada a Receber: R$ 3.230.195,05</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Incorporadora</th>
+          <th class="right">Total Faturada</th>
+          <th class="right">Já Recebido</th>
+          <th class="right">A Receber</th>
+          <th class="right">% Recebido</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td><strong>FGR Incorporadora</strong></td><td class="right">R$ 1.243.991,34</td><td class="right">R$ 154.738,19</td><td class="right" style="color:#C0392B;font-weight:700;">R$ 1.089.253,15</td><td class="right"><div style="display:inline-flex;align-items:center;gap:6px;"><div class="prog-wrap" style="width:60px;"><div class="prog-fill" style="width:12.4%"></div></div><span>12,4%</span></div></td></tr>
+        <tr style="background:#F8FAFE;"><td>2</td><td><strong>Opus</strong></td><td class="right">R$ 790.040,12</td><td class="right">R$ 286.222,92</td><td class="right" style="font-weight:700;">R$ 503.817,20</td><td class="right"><div style="display:inline-flex;align-items:center;gap:6px;"><div class="prog-wrap" style="width:60px;"><div class="prog-fill" style="width:36.2%"></div></div><span>36,2%</span></div></td></tr>
+        <tr><td>3</td><td><strong>City</strong></td><td class="right">R$ 665.612,17</td><td class="right">R$ 162.285,41</td><td class="right" style="font-weight:700;">R$ 503.326,76</td><td class="right"><div style="display:inline-flex;align-items:center;gap:6px;"><div class="prog-wrap" style="width:60px;"><div class="prog-fill" style="width:24.4%"></div></div><span>24,4%</span></div></td></tr>
+        <tr style="background:#F8FAFE;"><td>4</td><td><strong>Consciente</strong></td><td class="right">R$ 271.113,98</td><td class="right">R$ 83.122,67</td><td class="right" style="font-weight:700;">R$ 187.991,31</td><td class="right"><div style="display:inline-flex;align-items:center;gap:6px;"><div class="prog-wrap" style="width:60px;"><div class="prog-fill" style="width:30.7%"></div></div><span>30,7%</span></div></td></tr>
+        <tr><td>5</td><td><strong>EBM</strong></td><td class="right">R$ 490.353,26</td><td class="right">R$ 303.225,18</td><td class="right" style="font-weight:700;">R$ 187.128,08</td><td class="right"><div style="display:inline-flex;align-items:center;gap:6px;"><div class="prog-wrap" style="width:60px;"><div class="prog-fill" style="width:61.8%"></div></div><span>61,8%</span></div></td></tr>
+        <tr style="background:#F8FAFE;"><td>6</td><td><strong>Revenda</strong></td><td class="right">R$ 398.427,51</td><td class="right">R$ 300.856,27</td><td class="right" style="font-weight:700;">R$ 97.571,24</td><td class="right"><div style="display:inline-flex;align-items:center;gap:6px;"><div class="prog-wrap" style="width:60px;"><div class="prog-fill" style="width:75.5%"></div></div><span>75,5%</span></div></td></tr>
+        <tr><td>7</td><td><strong>Tapajos</strong></td><td class="right">R$ 134.278,86</td><td class="right">R$ 38.792,31</td><td class="right" style="font-weight:700;">R$ 95.486,55</td><td class="right"><div style="display:inline-flex;align-items:center;gap:6px;"><div class="prog-wrap" style="width:60px;"><div class="prog-fill" style="width:28.9%"></div></div><span>28.9%</span></div></td></tr>
+        <tr style="background:#F8FAFE;"><td>8</td><td><strong>OM Incorporadora</strong></td><td class="right">R$ 146.618,24</td><td class="right">R$ 53.047,23</td><td class="right" style="font-weight:700;">R$ 93.571,01</td><td class="right"><div style="display:inline-flex;align-items:center;gap:6px;"><div class="prog-wrap" style="width:60px;"><div class="prog-fill" style="width:36.2%"></div></div><span>36,2%</span></div></td></tr>
+        <tr><td>9</td><td><strong>OM</strong></td><td class="right">R$ 92.705,64</td><td class="right">R$ 0,00</td><td class="right" style="color:#C0392B;font-weight:700;">R$ 92.705,64</td><td class="right"><div style="display:inline-flex;align-items:center;gap:6px;"><div class="prog-wrap" style="width:60px;"><div class="prog-fill" style="width:0%"></div></div><span style="color:#C0392B;">0,0%</span></div></td></tr>
+        <tr style="background:#F8FAFE;"><td>10</td><td><strong>Partini</strong></td><td class="right">R$ 109.401,40</td><td class="right">R$ 17.844,34</td><td class="right" style="font-weight:700;">R$ 91.557,06</td><td class="right"><div style="display:inline-flex;align-items:center;gap:6px;"><div class="prog-wrap" style="width:60px;"><div class="prog-fill" style="width:16.3%"></div></div><span>16,3%</span></div></td></tr>
+        <tr><td>11</td><td><strong>FGR</strong></td><td class="right">R$ 58.988,13</td><td class="right">R$ 0,00</td><td class="right" style="color:#C0392B;font-weight:700;">R$ 58.988,13</td><td class="right"><div style="display:inline-flex;align-items:center;gap:6px;"><div class="prog-wrap" style="width:60px;"><div class="prog-fill" style="width:0%"></div></div><span style="color:#C0392B;">0,0%</span></div></td></tr>
+        <tr style="background:#F8FAFE;"><td>12</td><td><strong>Flamboyant Urbanismo</strong></td><td class="right">R$ 122.235,54</td><td class="right">R$ 66.613,20</td><td class="right" style="font-weight:700;">R$ 55.622,34</td><td class="right"><div style="display:inline-flex;align-items:center;gap:6px;"><div class="prog-wrap" style="width:60px;"><div class="prog-fill" style="width:54.5%"></div></div><span>54,5%</span></div></td></tr>
+        <tr><td>13</td><td><strong>Terral</strong></td><td class="right">R$ 78.164,81</td><td class="right">R$ 26.408,68</td><td class="right" style="font-weight:700;">R$ 51.756,13</td><td class="right"><div style="display:inline-flex;align-items:center;gap:6px;"><div class="prog-wrap" style="width:60px;"><div class="prog-fill" style="width:33.8%"></div></div><span>33,8%</span></div></td></tr>
+        <tr style="background:#F8FAFE;"><td>14</td><td><strong>Demais incorporadoras</strong></td><td class="right">R$ 105.669,85</td><td class="right">R$ 39.643,07</td><td class="right" style="font-weight:700;">R$ 72.525,67</td><td class="right"><div style="display:inline-flex;align-items:center;gap:6px;"><div class="prog-wrap" style="width:60px;"><div class="prog-fill" style="width:37.5%"></div></div><span>37,5%</span></div></td></tr>
+        <tr style="background:var(--navy);color:#fff;">
+          <td colspan="2"><strong>Total Faturada a Receber</strong></td>
+          <td class="right"><strong>R$ 4.768.231,39</strong></td>
+          <td class="right"><strong>R$ 1.538.036,34</strong></td>
+          <td class="right" style="color:var(--gold-l);"><strong>R$ 3.230.195,05</strong></td>
+          <td class="right" style="color:var(--gold-l);"><strong>32,3%</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<div class="footer">
+  AEVO Imobiliária &nbsp;·&nbsp; Dashboard de Comissões &nbsp;·&nbsp; Referência: Mar/2026 &nbsp;·&nbsp; Dados: PLANILHA FINAL 2024 A MARÇO/2026
+</div>
+
+<script>
+const NAVY='#0D2240',NAVY_L='#1B3A6B',GOLD='#C9A84C',GRAY='#8899AA';
+
+const D={
+  evolucao:{
+    labels:['Jan/25','Fev/25','Mar/25','Abr/25','Mai/25','Jun/25','Jul/25','Ago/25','Set/25','Out/25','Nov/25','Dez/25','Jan/26','Fev/26','Mar/26'],
+    values:[319659.80,508580.07,383205.74,395350.05,506623.23,561157.20,739542.43,629126.31,918363.39,986328.47,991903.30,917782.06,968351.24,545795.89,727363.60]
+  },
+  forecast:{
+    labels:['Abr/26','Mai/26','Jun/26','Jul/26','Ago/26','Set/26'],
+    values:[644679.02,1054989.01,839027.78,428162.38,202751.03,294094.29]
+  },
+  incorp:{
+    labels:['Opus','FGR Incorporadora','City','EBM','Revenda','Terral','Tapajos','Outros'],
+    values:[5023613.36,2960293.69,2155883.30,1161469.56,1003605.88,855213.24,722511.60,5031599.31],
+    pcts:[26.6,15.7,11.4,6.1,5.3,4.5,3.8,26.6]
+  },
+  inad:{
+    labels:['1–30 dias','31–60 dias','61–90 dias','> 90 dias'],
+    values:[277357.94,136606.32,143460.39,697379.92],
+    parc:[67,21,24,124]
+  },
+  emps:[
+    {n:'Opus Altana',           t:1487632,r:652998, a:834634, p:43.9, fat:152449.76, fv:17578.91,  fa:134870.85},
+    {n:'Jardins Grecia',        t:1389524,r:421335, a:968189, p:30.3, fat:827575.53, fv:44815.06,  fa:766179.60},
+    {n:'Cidade Ybiti',          t:727842, r:545072, a:182770, p:74.9, fat:161233.33, fv:156908.36, fa:0},
+    {n:'Jardins Montreal',      t:543114, r:290793, a:252321, p:53.5, fat:161776.00, fv:0,         fa:161619.37},
+    {n:'Opus Zoom',             t:538349, r:482549, a:55800,  p:89.6, fat:23133.94,  fv:0,         fa:23133.94},
+    {n:'Hype Vaca Brava',       t:538039, r:365889, a:172150, p:68.0, fat:1716.64,   fv:1716.64,   fa:0},
+    {n:'Dual Om Stay',          t:522204, r:39938,  a:482266, p:7.6,  fat:0,         fv:0,         fa:0},
+    {n:'Nomad Modern Life',     t:438634, r:393580, a:45054,  p:89.7, fat:16984.88,  fv:1577.76,   fa:13293.77},
+    {n:'Autentico Flamboyant',  t:417158, r:238292, a:178866, p:57.1, fat:55622.34,  fv:46522.34,  fa:0},
+    {n:'City Corporate',        t:387542, r:77189,  a:310353, p:19.9, fat:300510.68, fv:0,         fa:300510.68},
+    {n:'Opus Gyro Praça do Sol',t:348637, r:328698, a:19939,  p:94.3, fat:3005.79,   fv:0,         fa:0},
+    {n:'Opus Zoom 145',         t:347216, r:0,      a:347216, p:0.0,  fat:23531.82,  fv:0,         fa:23531.82},
+    {n:'Kairós',                t:333422, r:56047,  a:277375, p:16.8, fat:43009.21,  fv:0,         fa:43009.21},
+    {n:'Smart 36',              t:270178, r:258749, a:11429,  p:95.8, fat:4297.98,   fv:0,         fa:0},
+    {n:'Ludovic Apartaments',   t:269960, r:211503, a:58457,  p:78.3, fat:21804.88,  fv:7410.69,   fa:11894.03},
+    {n:'Jardins Frankfurt',     t:267959, r:68257,  a:199702, p:25.5, fat:97685.51,  fv:78301.04,  fa:19132.65},
+    {n:'Bossa OM Home',         t:227339, r:128104, a:99235,  p:56.3, fat:77258.54,  fv:16125.83,  fa:58725.60},
+    {n:'City Park Majestic',    t:207622, r:207622, a:0,      p:100.0,fat:0,         fv:0,         fa:0},
+    {n:'Parque Ecoville Ipê',   t:202690, r:200443, a:2247,   p:98.9, fat:0,         fv:0,         fa:0},
+    {n:'City Park Royal',       t:193549, r:87655,  a:105894, p:45.3, fat:0,         fv:0,         fa:0}
+  ]
+};
+
+function brl(v){return'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function brlK(v){if(v>=1e6)return'R$ '+(v/1e6).toFixed(2).replace('.',',')+'M';return'R$ '+(v/1e3).toFixed(0)+'k';}
+
+const scaleBase={
+  x:{grid:{display:false},ticks:{color:NAVY,font:{size:11}}},
+  y:{grid:{color:'#E5EBF3',drawBorder:false},ticks:{color:GRAY,font:{size:11},callback:v=>brlK(v)}}
+};
+
+// Chart 1 – Evolução Mensal
+new Chart('chartEvolucao',{type:'bar',data:{
+  labels:D.evolucao.labels,
+  datasets:[{data:D.evolucao.values,
+    backgroundColor:D.evolucao.labels.map(l=>l.endsWith('/26')?GOLD:NAVY),
+    borderRadius:4,borderSkipped:false}]
+},options:{responsive:true,scales:scaleBase,
+  plugins:{legend:{display:true,labels:{generateLabels:()=>[
+    {text:'2025',fillStyle:NAVY,strokeStyle:NAVY},
+    {text:'2026 (Jan–Mar)',fillStyle:GOLD,strokeStyle:GOLD}
+  ],font:{size:11},color:NAVY,boxWidth:14,padding:16}},
+  tooltip:{callbacks:{label:c=>brl(c.raw)}}}}});
+
+// Chart 2 – Forecast
+new Chart('chartForecast',{type:'bar',data:{
+  labels:D.forecast.labels,
+  datasets:[{data:D.forecast.values,
+    backgroundColor:D.forecast.labels.map((_,i)=>i===0?GOLD:NAVY),
+    borderRadius:4,borderSkipped:false}]
+},options:{responsive:true,scales:scaleBase,
+  plugins:{legend:{display:true,labels:{generateLabels:()=>[
+    {text:'Próximo mês (Abr/26)',fillStyle:GOLD,strokeStyle:GOLD},
+    {text:'Meses seguintes',fillStyle:NAVY,strokeStyle:NAVY}
+  ],font:{size:11},color:NAVY,boxWidth:14,padding:16}},
+  tooltip:{callbacks:{label:c=>brl(c.raw)}}}}});
+
+// Chart 3 – Incorporadoras
+const iCols=[NAVY,'#1B3A6B','#2A5298','#3A6BC0','#4A7FD0',GOLD,'#A07020','#B0B8C8'];
+new Chart('chartIncorp',{type:'bar',data:{
+  labels:D.incorp.labels,
+  datasets:[{data:D.incorp.values,backgroundColor:iCols,borderRadius:4,borderSkipped:false}]
+},options:{responsive:true,
+  scales:{x:{grid:{display:false},ticks:{color:NAVY,font:{size:10},maxRotation:15}},
+          y:{grid:{color:'#E5EBF3'},ticks:{color:GRAY,font:{size:11},callback:v=>brlK(v)}}},
+  plugins:{legend:{display:false},
+    tooltip:{callbacks:{label:c=>`${brl(c.raw)} (${D.incorp.pcts[c.dataIndex]}%)`}}}}});
+
+// Chart 4 – Donut Incorporadoras
+new Chart('chartDonut',{type:'doughnut',data:{
+  labels:D.incorp.labels,
+  datasets:[{data:D.incorp.values,backgroundColor:iCols,borderWidth:2,borderColor:'#fff'}]
+},options:{responsive:true,cutout:'60%',
+  plugins:{legend:{display:true,position:'bottom',labels:{font:{size:10},color:NAVY,boxWidth:12,padding:8}},
+    tooltip:{callbacks:{label:c=>`${c.label}: ${D.incorp.pcts[c.dataIndex]}%`}}}}});
+
+// Chart 5 – Inadimplência barras
+const inadC=['#F4C430','#E07B00','#C0392B','#7B1010'];
+new Chart('chartInad',{type:'bar',data:{
+  labels:D.inad.labels,
+  datasets:[{data:D.inad.values,backgroundColor:inadC,borderRadius:4}]
+},options:{indexAxis:'y',responsive:true,
+  scales:{x:{grid:{color:'#E5EBF3'},ticks:{color:GRAY,font:{size:11},callback:v=>brlK(v)}},
+          y:{grid:{display:false},ticks:{color:NAVY,font:{size:11}}}},
+  plugins:{legend:{display:false},
+    tooltip:{callbacks:{label:c=>`${brl(c.raw)} (${D.inad.parc[c.dataIndex]} parcelas)`}}}}});
+
+// Chart 6 – Donut Inadimplência
+new Chart('chartInadDonut',{type:'doughnut',data:{
+  labels:D.inad.labels,
+  datasets:[{data:D.inad.values,backgroundColor:inadC,borderWidth:2,borderColor:'#fff'}]
+},options:{responsive:true,cutout:'58%',
+  plugins:{legend:{display:true,position:'bottom',labels:{font:{size:10},color:NAVY,boxWidth:12,padding:8}},
+    tooltip:{callbacks:{label:c=>{const tot=D.inad.values.reduce((a,b)=>a+b,0);return`${c.label}: ${(c.raw/tot*100).toFixed(1)}%`;}}}}}});
+
+// Tabela
+function badge(p){
+  if(p>=95)return'<span class="badge-status badge-ok">Quitado</span>';
+  if(p>=70)return'<span class="badge-status badge-bom">Em dia</span>';
+  if(p>=40)return'<span class="badge-status badge-medio">Parcial</span>';
+  return'<span class="badge-status badge-alto">Pendente</span>';
+}
+const tb=document.getElementById('tblBody');
+D.emps.forEach((e,i)=>{
+  const full=e.p>=95;
+  let fatLine = '';
+  if(e.fat>0){
+    const hasVencida = e.fv>0;
+    const hasAvencer = e.fa>0;
+    const subItems = [];
+    if(hasVencida) subItems.push(
+      `<span style="color:#C0392B;">▪ Vencida: ${brl(e.fv)}</span>`
+    );
+    if(hasAvencer) subItems.push(
+      `<span style="color:#117A65;">▪ A vencer: ${brl(e.fa)}</span>`
+    );
+    const subs = subItems.length>0
+      ? `<div style="display:flex;gap:14px;margin-top:3px;font-size:10px;font-weight:600;">${subItems.join('')}</div>`
+      : '';
+    fatLine = `<div style="font-size:10.5px;color:#1A5276;margin-top:3px;font-weight:700;">
+         ↳ Faturada a receber: <span style="color:#1A5276;">${brl(e.fat)}</span>
+       </div>${subs}`;
+  }
+  tb.innerHTML+=`<tr>
+    <td>${i+1}</td>
+    <td><strong>${e.n}</strong>${fatLine}</td>
+    <td class="right">${brl(e.t)}</td>
+    <td class="right">${brl(e.r)}</td>
+    <td class="right">${brl(e.a)}</td>
+    <td><div class="prog-wrap"><div class="prog-fill${full?' full':''}" style="width:${Math.min(e.p,100)}%"></div></div><span class="pct-label">${e.p.toFixed(1)}%</span></td>
+    <td>${badge(e.p)}</td>
+  </tr>`;
+});
+</script>
+</body>
+</html>
