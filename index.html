@@ -4,6 +4,40 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard Comissões — AEVO Imobiliária | Março 2026</title>
+<script>
+(function(){
+  function h(s){var hash=0;for(var i=0;i<s.length;i++){var c=s.charCodeAt(i);hash=((hash<<5)-hash)+c;hash|=0;}return Math.abs(hash).toString(16).padStart(8,'0');}
+  function simpleHash(pwd){var a=h(pwd),b=h(pwd+pwd),c=h(b+a);return a+b.slice(0,4)+c.slice(0,4);}
+  var CORRECT = simpleHash("financeiroaevo");
+  var SK = "aevo_auth_v1";
+  if(sessionStorage.getItem(SK) \!== CORRECT){
+    var ov = '<div id="aevo-auth" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#0D2240;display:flex;align-items:center;justify-content:center;z-index:99999;font-family:Segoe UI,Arial,sans-serif;">'
+      + '<div style="background:#fff;border-radius:16px;padding:44px 48px;max-width:380px;width:90%;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.35);">'
+      + '<div style="font-size:36px;margin-bottom:8px;">&#128274;</div>'
+      + '<div style="color:#0D2240;font-size:20px;font-weight:700;margin-bottom:4px;">AEVO Imobili&#225;ria</div>'
+      + '<div style="color:#8899AA;font-size:13px;margin-bottom:28px;">Dashboard Financeiro &#8212; Acesso Restrito</div>'
+      + '<input id="apwd" type="password" placeholder="Digite a senha" style="width:100%;padding:12px 16px;border:2px solid #E0E6ED;border-radius:8px;font-size:15px;outline:none;margin-bottom:12px;color:#0D2240;" />'
+      + '<button id="abtn" style="width:100%;padding:12px;background:#0D2240;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:10px;">Entrar</button>'
+      + '<div id="aerr" style="color:#C0392B;font-size:12px;min-height:16px;"></div>'
+      + '</div></div>';
+    document.addEventListener("DOMContentLoaded",function(){
+      document.body.insertAdjacentHTML('afterbegin', ov);
+      document.body.style.overflow='hidden';
+      var inp=document.getElementById('apwd'),btn=document.getElementById('abtn'),err=document.getElementById('aerr');
+      function tryLogin(){
+        if(simpleHash(inp.value)===CORRECT){
+          sessionStorage.setItem(SK,CORRECT);
+          document.getElementById('aevo-auth').remove();
+          document.body.style.overflow='';
+        } else { err.textContent='Senha incorreta.'; inp.value=''; inp.focus(); }
+      }
+      btn.addEventListener('click',tryLogin);
+      inp.addEventListener('keydown',function(e){if(e.key==='Enter')tryLogin();});
+      inp.focus();
+    });
+  }
+})();
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   :root {
