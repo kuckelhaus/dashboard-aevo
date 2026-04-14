@@ -9,14 +9,19 @@
 :root{--navy:#0D2240;--navy-l:#1B3A6B;--gold:#C9A84C;--gold-l:#E8C87A;--bg:#F4F6F9;--white:#fff;--gray:#8899AA;--red:#C0392B;--green:#27AE60;--card-shadow:0 2px 12px rgba(13,34,64,.10);}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--navy);}
-.header{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-l) 100%);padding:22px 32px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.header{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-l) 100%);padding:18px 32px 16px;display:flex;flex-direction:column;gap:12px;}
+.header-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
 .header-left h1{color:#fff;font-size:20px;font-weight:700;}
 .header-left p{color:var(--gold-l);font-size:12px;margin-top:3px;}
-.header-badge{background:rgba(201,168,76,.18);border:1px solid var(--gold);color:var(--gold-l);padding:5px 16px;border-radius:20px;font-size:12px;font-weight:600;letter-spacing:.5px;}
-.filter-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-.filter-row label{color:rgba(255,255,255,.7);font-size:12px;font-weight:600;white-space:nowrap;}
-.filter-row select{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;padding:6px 10px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;outline:none;}
-.filter-row select option{background:#0D2240;color:#fff;}
+.header-badge{background:rgba(201,168,76,.18);border:1px solid var(--gold);color:var(--gold-l);padding:5px 16px;border-radius:20px;font-size:12px;font-weight:600;letter-spacing:.5px;white-space:nowrap;}
+.filter-section{display:flex;flex-direction:column;gap:8px;border-top:1px solid rgba(255,255,255,.12);padding-top:12px;}
+.filter-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.filter-group-label{color:rgba(255,255,255,.55);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;min-width:36px;}
+.ftag{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6);background:transparent;transition:all .15s;user-select:none;}
+.ftag:hover{border-color:rgba(255,255,255,.5);color:rgba(255,255,255,.9);}
+.ftag.active{background:var(--gold);border-color:var(--gold);color:var(--navy);}
+.filter-reset{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);background:transparent;transition:all .15s;}
+.filter-reset:hover{border-color:rgba(255,255,255,.5);color:#fff;}
 .main{max-width:1280px;margin:0 auto;padding:24px 20px 48px;}
 .section-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--navy);margin:24px 0 12px;padding-left:3px;border-left:3px solid var(--gold);padding-left:10px;}
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:4px;}
@@ -77,35 +82,38 @@ tbody td.right{text-align:right;font-variant-numeric:tabular-nums;}
 <body>
 
 <div class="header">
-  <div class="header-left">
-    <h1>Dashboard de Comissões — AEVO Imobiliária</h1>
-    <p id="hdr-sub">Referência: Janeiro 2024 – Março 2026 &nbsp;|&nbsp; Corte: 31/03/2026 &nbsp;|&nbsp; Gerado em: 14/04/2026</p>
+  <div class="header-top">
+    <div class="header-left">
+      <h1>Dashboard de Comissões — AEVO Imobiliária</h1>
+      <p>Referência: Janeiro 2024 – Março 2026 &nbsp;|&nbsp; Corte: 31/03/2026 &nbsp;|&nbsp; Gerado em: 14/04/2026</p>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="filter-reset" onclick="resetFiltros()">✕ Limpar filtros</button>
+      <div class="header-badge" id="hdr-badge">TOTAL GERAL</div>
+    </div>
   </div>
-  <div class="filter-row">
-    <label>Selecione o ano</label>
-    <select id="filtroAno" onchange="render()">
-      <option value="0">Todos</option>
-      <option value="2024">2024</option>
-      <option value="2025">2025</option>
-      <option value="2026">2026</option>
-    </select>
-    <label style="margin-left:6px;">Selecione o mês</label>
-    <select id="filtroMes" onchange="render()">
-      <option value="0">Todos</option>
-      <option value="1">Janeiro</option>
-      <option value="2">Fevereiro</option>
-      <option value="3">Março</option>
-      <option value="4">Abril</option>
-      <option value="5">Maio</option>
-      <option value="6">Junho</option>
-      <option value="7">Julho</option>
-      <option value="8">Agosto</option>
-      <option value="9">Setembro</option>
-      <option value="10">Outubro</option>
-      <option value="11">Novembro</option>
-      <option value="12">Dezembro</option>
-    </select>
-    <div class="header-badge" id="hdr-badge">TOTAL GERAL</div>
+  <div class="filter-section">
+    <div class="filter-group">
+      <span class="filter-group-label">Ano</span>
+      <span class="ftag" data-tipo="ano" data-val="2024" onclick="toggleFiltro(this)">2024</span>
+      <span class="ftag" data-tipo="ano" data-val="2025" onclick="toggleFiltro(this)">2025</span>
+      <span class="ftag" data-tipo="ano" data-val="2026" onclick="toggleFiltro(this)">2026</span>
+    </div>
+    <div class="filter-group">
+      <span class="filter-group-label">Mês</span>
+      <span class="ftag" data-tipo="mes" data-val="1"  onclick="toggleFiltro(this)">Jan</span>
+      <span class="ftag" data-tipo="mes" data-val="2"  onclick="toggleFiltro(this)">Fev</span>
+      <span class="ftag" data-tipo="mes" data-val="3"  onclick="toggleFiltro(this)">Mar</span>
+      <span class="ftag" data-tipo="mes" data-val="4"  onclick="toggleFiltro(this)">Abr</span>
+      <span class="ftag" data-tipo="mes" data-val="5"  onclick="toggleFiltro(this)">Mai</span>
+      <span class="ftag" data-tipo="mes" data-val="6"  onclick="toggleFiltro(this)">Jun</span>
+      <span class="ftag" data-tipo="mes" data-val="7"  onclick="toggleFiltro(this)">Jul</span>
+      <span class="ftag" data-tipo="mes" data-val="8"  onclick="toggleFiltro(this)">Ago</span>
+      <span class="ftag" data-tipo="mes" data-val="9"  onclick="toggleFiltro(this)">Set</span>
+      <span class="ftag" data-tipo="mes" data-val="10" onclick="toggleFiltro(this)">Out</span>
+      <span class="ftag" data-tipo="mes" data-val="11" onclick="toggleFiltro(this)">Nov</span>
+      <span class="ftag" data-tipo="mes" data-val="12" onclick="toggleFiltro(this)">Dez</span>
+    </div>
   </div>
 </div>
 
@@ -197,24 +205,120 @@ function brlFull(v){
 function pct(v){return v.toFixed(1).replace('.',',')+'%';}
 
 let charts = {};
-
 function destroyChart(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
 
+// ── MULTI-SELECT FILTER LOGIC ──
+function toggleFiltro(el){
+  el.classList.toggle('active');
+  render();
+}
+function resetFiltros(){
+  document.querySelectorAll('.ftag.active').forEach(el=>el.classList.remove('active'));
+  render();
+}
+function getSelected(tipo){
+  return Array.from(document.querySelectorAll(`.ftag.active[data-tipo="${tipo}"]`))
+    .map(el=>parseInt(el.dataset.val));
+}
+
+function aggregateKeys(anos, meses){
+  // Build list of DB keys to combine
+  const keys = [];
+  const aList = anos.length ? anos : [0];
+  const mList = meses.length ? meses : [0];
+  // If both empty → total geral
+  if(!anos.length && !meses.length) return DB['0_0'];
+  // For each selected ano × mes combo
+  for(const a of aList){
+    for(const m of mList){
+      const k = a+'_'+m;
+      if(DB[k]) keys.push(DB[k]);
+    }
+  }
+  if(!keys.length) return DB['0_0'];
+  if(keys.length===1) return keys[0];
+  return mergeData(keys);
+}
+
+function mergeData(slices){
+  const out = {t:0,r:0,ar:0,it:0,ic:0,pr:0,pi:0,ib:{},is:{},inc:[],mn:[],ut:{cols:[],rows:[]},em:[]};
+  // Sum scalars
+  for(const s of slices){out.t+=s.t;out.r+=s.r;out.ar+=s.ar;out.it+=s.it;out.ic+=s.ic;}
+  out.pr = out.t>0?Math.round(out.r/out.t*1000)/10:0;
+  out.pi = out.t>0?Math.round(out.it/out.t*1000)/10:0;
+  // Merge inad buckets
+  for(const b of ['1-30','31-60','61-90','90+']){
+    const merged={v:0,c:0,top:[]};
+    const topMap={};
+    for(const s of slices){
+      const sb=s.ib&&s.ib[b];if(!sb)continue;
+      merged.v+=sb.v;merged.c+=sb.c;
+      for(const [e,v] of (sb.top||[])) topMap[e]=(topMap[e]||0)+v;
+    }
+    merged.top=Object.entries(topMap).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([e,v])=>[e,Math.round(v*100)/100]);
+    out.ib[b]=merged;
+  }
+  // Merge inad sit
+  for(const sit of ['Normal','Em Cobrança Extra Judicial','Distratada']){
+    const merged={v:0,c:0,top:[]};
+    const topMap={};
+    for(const s of slices){
+      const ss=s.is&&s.is[sit];if(!ss)continue;
+      merged.v+=ss.v;merged.c+=ss.c;
+      for(const [e,v] of (ss.top||[])) topMap[e]=(topMap[e]||0)+v;
+    }
+    merged.top=Object.entries(topMap).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([e,v])=>[e,Math.round(v*100)/100]);
+    out.is[sit]=merged;
+  }
+  // Merge incorporadora
+  const incMap={};
+  for(const s of slices) for(const [e,v] of (s.inc||[])) incMap[e]=(incMap[e]||0)+v;
+  out.inc=Object.entries(incMap).sort((a,b)=>b[1]-a[1]).map(([e,v])=>[e,Math.round(v*100)/100]);
+  // Merge monthly chart
+  const mnMap={};
+  for(const s of slices) for(const [ym,v] of (s.mn||[])) mnMap[ym]=(mnMap[ym]||0)+v;
+  out.mn=Object.entries(mnMap).sort((a,b)=>a[0]<b[0]?-1:1).map(([ym,v])=>[ym,Math.round(v*100)/100]);
+  // Merge empreendimentos
+  const emMap={};
+  for(const s of slices) for(const [nm,tot,rec,ar,p] of (s.em||[])){
+    if(!emMap[nm]) emMap[nm]=[0,0,0];
+    emMap[nm][0]+=tot;emMap[nm][1]+=rec;emMap[nm][2]+=ar;
+  }
+  out.em=Object.entries(emMap).sort((a,b)=>b[1][0]-a[1][0]).slice(0,20)
+    .map(([nm,[tot,rec,ar]])=>[nm,Math.round(tot*100)/100,Math.round(rec*100)/100,Math.round(ar*100)/100,tot>0?Math.round(rec/tot*1000)/10:0]);
+  // Merge unidade table
+  const allCols=new Set();
+  for(const s of slices)(s.ut&&s.ut.cols||[]).forEach(c=>allCols.add(c));
+  const cols=Array.from(allCols).sort();
+  const unitMap={};
+  for(const s of slices){
+    const sc=s.ut&&s.ut.cols||[];
+    for(const row of (s.ut&&s.ut.rows||[])){
+      if(row[0]==='Total')continue;
+      if(!unitMap[row[0]]) unitMap[row[0]]={};
+      sc.forEach((c,i)=>{unitMap[row[0]][c]=(unitMap[row[0]][c]||0)+(row[i+1]||0);});
+    }
+  }
+  const rows=Object.entries(unitMap).map(([nm,cv])=>[nm,...cols.map(c=>Math.round((cv[c]||0)*100)/100)]);
+  const totalRow=['Total',...cols.map(c=>Math.round(rows.reduce((s,r)=>s+(r[cols.indexOf(c)+1]||0),0)*100)/100)];
+  out.ut={cols,rows:[...rows,totalRow]};
+  return out;
+}
+
 function render(){
-  const ano = parseInt(document.getElementById('filtroAno').value)||0;
-  const mes = parseInt(document.getElementById('filtroMes').value)||0;
-  const key = ano+'_'+mes;
-  const d = DB[key];
+  const anos = getSelected('ano');
+  const meses = getSelected('mes');
+  const d = aggregateKeys(anos, meses);
   if(!d) return;
 
   // Badge
   let badge = 'TOTAL GERAL';
-  if(ano>0 && mes>0) badge = MESES_PT[mes].toUpperCase()+'/'+ano;
-  else if(ano>0) badge = String(ano);
-  else if(mes>0) badge = MESES_FULL[mes].toUpperCase();
+  if(anos.length && meses.length) badge = meses.map(m=>MESES_PT[m]).join('+') +' / '+ anos.join('+');
+  else if(anos.length) badge = anos.join(' + ');
+  else if(meses.length) badge = meses.map(m=>MESES_PT[m]).join(' + ');
   document.getElementById('hdr-badge').textContent = badge;
 
-  renderKPIs(d, ano, mes);
+  renderKPIs(d, anos, meses);
   renderEvolucao(d);
   renderIncorp(d);
   renderInad(d);
@@ -223,9 +327,9 @@ function render(){
   renderEmpTable(d);
 }
 
-function renderKPIs(d, ano, mes){
-  // Year breakdowns (only show when "todos" selected)
-  const showBreak = (ano===0 && mes===0);
+function renderKPIs(d, anos, meses){
+  // Year breakdowns only when nothing is selected (total geral)
+  const showBreak = (anos.length===0 && meses.length===0);
   const yb24_t = DB['2024_0'], yb25_t = DB['2025_0'], yb26_t = DB['2026_0'];
   const yb24_r = DB['2024_0'], yb25_r = DB['2025_0'], yb26_r = DB['2026_0'];
 
@@ -263,7 +367,7 @@ function renderKPIs(d, ano, mes){
       <div class="kpi-label">A Receber <span style="font-size:10px;font-weight:600;background:rgba(255,255,255,.2);padding:2px 7px;border-radius:8px;">Corte: 31/03</span></div>
       <div class="kpi-value">${brl(d.ar)}</div>
       <div class="kpi-sub">Saldo em 31/03: <span>${brlFull(d.ar)}</span></div>
-      ${(ano===0&&mes===0)?`<div style="margin-top:8px;padding:7px 10px;background:rgba(255,255,255,.15);border-radius:8px;border-left:3px solid rgba(255,255,255,.5);">
+      ${showBreak?`<div style="margin-top:8px;padding:7px 10px;background:rgba(255,255,255,.15);border-radius:8px;border-left:3px solid rgba(255,255,255,.5);">
         <div style="font-size:10.5px;color:rgba(255,255,255,.7);font-weight:600;">Saldo atual (14/04)</div>
         <div style="font-size:13px;font-weight:700;color:#fff;margin-top:2px;">R$ 6.918.662,09</div>
         <div style="font-size:10px;color:rgba(255,255,255,.6);margin-top:1px;">após recebimentos de abril</div>
