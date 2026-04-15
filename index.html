@@ -396,6 +396,13 @@ function resetPagarFiltros(){
 }
 
 function renderPagar(){
+  try { _renderPagar(); } catch(e){
+    const w = document.getElementById('pagar-table-wrap');
+    if(w) w.innerHTML = '<div style="padding:20px;color:#C0392B;font-weight:700;">Erro: '+e.message+'</div>';
+    console.error('renderPagar error:', e);
+  }
+}
+function _renderPagar(){
   // Aggregate per unit
   const totRec  = UNIDADES.map((_,i)=>{
     return pagarMesesAtivos.reduce((s,m)=>s+(RECEITA[m][i]||0),0);
@@ -508,25 +515,27 @@ function renderPagar(){
 }
 
 function switchView(view){
-  const mainEl = document.querySelector('.main');
-  const pagarEl = document.getElementById('pagar-view');
-  const filterEl = document.querySelector('.filter-section');
-  const btnRec = document.getElementById('btn-receber');
-  const btnPag = document.getElementById('btn-pagar');
-  if(view === 'receber'){
-    mainEl.style.display = '';
-    pagarEl.style.display = 'none';
-    filterEl.style.display = '';
-    btnRec.classList.add('active');
-    btnPag.classList.remove('active');
-  } else {
-    mainEl.style.display = 'none';
-    pagarEl.style.display = 'block';
-    filterEl.style.display = 'none';
-    btnRec.classList.remove('active');
-    btnPag.classList.add('active');
-    renderPagar();
-  }
+  try {
+    const mainEl = document.querySelector('.main');
+    const pagarEl = document.getElementById('pagar-view');
+    const filterEl = document.querySelector('.filter-section');
+    const btnRec = document.getElementById('btn-receber');
+    const btnPag = document.getElementById('btn-pagar');
+    if(view === 'receber'){
+      if(mainEl) mainEl.style.display = '';
+      if(pagarEl) pagarEl.style.display = 'none';
+      if(filterEl) filterEl.style.display = '';
+      if(btnRec) btnRec.classList.add('active');
+      if(btnPag) btnPag.classList.remove('active');
+    } else {
+      if(mainEl) mainEl.style.display = 'none';
+      if(pagarEl) pagarEl.style.display = 'block';
+      if(filterEl) filterEl.style.display = 'none';
+      if(btnRec) btnRec.classList.remove('active');
+      if(btnPag) btnPag.classList.add('active');
+      renderPagar();
+    }
+  } catch(e){ alert('switchView error: '+e.message); console.error(e); }
 }
 
 const MESES_PT = ['','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
