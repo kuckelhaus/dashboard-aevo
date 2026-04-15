@@ -332,7 +332,6 @@ tbody td.right{text-align:right;font-variant-numeric:tabular-nums;}
       <span class="ptag active" data-mes="1" onclick="togglePagarMes(this)">Jan/26</span>
       <span class="ptag active" data-mes="2" onclick="togglePagarMes(this)">Fev/26</span>
       <span class="ptag active" data-mes="3" onclick="togglePagarMes(this)">Mar/26</span>
-      <span class="ptag active" data-mes="4" onclick="togglePagarMes(this)">Abr/26</span>
       <button class="pagar-reset" onclick="resetPagarFiltros()">✕ Limpar</button>
     </div>
 
@@ -356,7 +355,7 @@ tbody td.right{text-align:right;font-variant-numeric:tabular-nums;}
     </div>
 
     <div style="font-size:11px;color:#8899AA;text-align:right;padding:8px 4px;">
-      * Abril/2026: despesas ainda não registradas — saldo = receita
+      Referência: Janeiro – Março 2026 · Despesas: custo operacional total por unidade
     </div>
   </div>
 </div>
@@ -369,20 +368,18 @@ const DB={"0_0":{"t":18914189.94,"r":11709029.96,"ar":7205159.98,"it":1255649.46
 // ── PAGAR DATA ──
 const UNIDADES = ['AEVO 3','AEVO 4','Unidade Bueno','Jardim Goiás'];
 const RECEITA = {
-  1: [0,        11527.50,  290020.75, 666802.99],
-  2: [13689.20, 36961.75,  170608.22, 324536.72],
-  3: [37433.85, 48950.18,  228001.30, 412978.27],
-  4: [19421.09, 29530.00,  157311.78, 80203.30]
+  1: [0,        11527.50,  258268.46, 528562.99],
+  2: [13689.20, 36961.75,  150057.66, 319597.90],
+  3: [37433.85, 45708.07,  212094.06, 365522.77]
 };
 const DESPESA = {
   1: [0,        0,         162969.34, 724303.61],
   2: [0,        0,         188922.05, 709047.34],
-  3: [1601.00,  52223.04,  185179.63, 706774.84],
-  4: [null,     null,      null,      null]  // abril ainda sem dados
+  3: [52223.04, 1601.00,   185179.63, 706774.84]
 };
-const MESES_PAGAR = {1:'Jan/26',2:'Fev/26',3:'Mar/26',4:'Abr/26'};
+const MESES_PAGAR = {1:'Jan/26',2:'Fev/26',3:'Mar/26'};
 
-let pagarMesesAtivos = [1,2,3,4];
+let pagarMesesAtivos = [1,2,3];
 
 function togglePagarMes(el){
   el.classList.toggle('active');
@@ -391,7 +388,7 @@ function togglePagarMes(el){
 }
 function resetPagarFiltros(){
   document.querySelectorAll('.ptag').forEach(e=>e.classList.add('active'));
-  pagarMesesAtivos = [1,2,3,4];
+  pagarMesesAtivos = [1,2,3];
   renderPagar();
 }
 
